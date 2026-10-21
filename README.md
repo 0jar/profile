@@ -31,7 +31,7 @@ See the site at [jar.vn](https://jar.vn).
 
 ## Requirements
 
-- Node.js >=24.22.0
+- Node.js >=24.20.0
 - pnpm (or another package manager you like)
 
 Install dependencies and start the development server:
@@ -117,7 +117,7 @@ Lighthouse CI is configured with a minimum score of 95 for performance, accessib
 
 ## Deployment
 
-The output is static and configured for deployment on Netlify. Settings are in netlify.toml.
+The output is static. Netlify build and redirect settings are in `netlify.toml` and HTTP headers are in `public/_headers`, Vercel response headers are in `vercel.json`.
 
 ## License
 
