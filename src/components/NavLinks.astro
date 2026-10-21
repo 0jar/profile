@@ -1,0 +1,20 @@
+---
+import type { ShippedLocale } from "../data/site.ts";
+import { localePath, t } from "../i18n/utils.ts";
+
+interface Props {
+  lang: ShippedLocale;
+  home: string;
+}
+
+const { lang, home } = Astro.props;
+const nav = [
+  { id: "about", key: "nav.about" },
+  { id: "projects", key: "nav.projects" },
+  { id: "timeline", key: "nav.timeline" },
+  { id: "contact", key: "nav.contact" }
+] as const;
+---
+
+{nav.map((item) => <a href={`${home}#${item.id}`}>{t(lang, item.key)}</a>)}
+<a href={localePath(lang, "/cv/")}>{t(lang, "nav.cv")}</a>

@@ -1,0 +1,34 @@
+---
+import { render } from "astro:content";
+import type { ShippedLocale } from "../data/site.ts";
+import { t } from "../i18n/utils.ts";
+import { getEntries } from "../utils/content.ts";
+
+interface Props {
+  lang: ShippedLocale;
+}
+
+const { lang } = Astro.props;
+const entries = await getEntries("faq", lang);
+const items = await Promise.all(
+  entries.map(async (entry) => ({ entry, Content: (await render(entry)).Content }))
+);
+---
+
+<section id="faq" aria-labelledby="faq-title">
+  <div class="container">
+    <h2 id="faq-title">{t(lang, "faq.title")}</h2>
+    <div class="faq-list">
+      {
+        items.map(({ entry, Content }) => (
+          <details class="faq-item">
+            <summary>{entry.data.question}</summary>
+            <div class="faq-answer" id={`faq-${entry.id.split("/").pop()}`}>
+              <Content />
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>

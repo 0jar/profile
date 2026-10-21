@@ -1,0 +1,34 @@
+---
+import { site, type ShippedLocale } from "../data/site.ts";
+import { t } from "../i18n/utils.ts";
+import { getBio } from "../utils/content.ts";
+
+interface Props {
+  lang: ShippedLocale;
+}
+
+const { lang } = Astro.props;
+const bio = await getBio(lang);
+---
+
+<section id="hero" class="hero" aria-labelledby="hero-title">
+  <div class="container">
+    <h1 id="hero-title">{site.displayName}</h1>
+    <p class="aliases">{bio.data.aliasesLine}</p>
+    <p>{bio.data.heroSummary}</p>
+    <div class="hero-actions">
+      <a class="btn-primary" rel="me" href={site.signalUrl}>{t(lang, "contact.signal")} @{site.signalHandle}</a>
+      <a class="pill" rel="me" href={`mailto:${site.email}`}>{site.email}</a>
+      <button
+        class="btn-copy"
+        type="button"
+        data-copy-email={site.email}
+        data-copied-label={t(lang, "contact.copied")}
+      >
+        {t(lang, "contact.copyEmail")}
+      </button>
+    </div>
+    <p class="sr-only" id="copy-status" role="status" aria-live="polite"></p>
+    <a class="hero-quiet-link" rel="me" href={site.blogUrl}>{t(lang, "hero.blogLink")}</a>
+  </div>
+</section>

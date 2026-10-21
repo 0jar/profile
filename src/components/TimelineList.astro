@@ -1,0 +1,74 @@
+---
+import { parseEntryId, type ShippedLocale } from "../data/site.ts";
+import { localePath, t } from "../i18n/utils.ts";
+import { formatDateRange } from "../utils/dates.ts";
+import { getEntries } from "../utils/content.ts";
+
+interface Props {
+  lang: ShippedLocale;
+}
+
+const { lang } = Astro.props;
+const [timeline, projects] = await Promise.all([
+  getEntries("timeline", lang),
+  getEntries("projects", lang)
+]);
+
+const items = [
+  ...timeline.map((e) => ({
+    key: e.id,
+    start: e.data.start,
+    end: e.data.end,
+    expected: e.data.isExpectedEnd,
+    lane: e.data.lane,
+    role: undefined as string | undefined,
+    title: e.data.title,
+    org: e.data.org,
+    location: e.data.location,
+    summary: e.data.summary,
+    href: undefined as string | undefined
+  })),
+  ...projects
+    .filter((p) => p.data.showInTimeline)
+    .map((p) => ({
+      key: p.id,
+      start: p.data.start,
+      end: p.data.end,
+      expected: false,
+      lane: p.data.lane,
+      role: p.data.role,
+      title: p.data.title,
+      org: p.data.org,
+      location: p.data.location,
+      summary: p.data.summary,
+      href: localePath(lang, `/projects/${parseEntryId(p.id).slug}/`) as string | undefined
+    }))
+].sort((a, b) => b.start.localeCompare(a.start));
+---
+
+<section id="timeline" aria-labelledby="timeline-title">
+  <div class="container">
+    <h2 id="timeline-title">{t(lang, "timeline.title")}</h2>
+    <ol class="timeline-list">
+      {
+        items.map((item) => (
+          <li class={`lane-${item.lane}`} id={`timeline-${parseEntryId(item.key).slug}`}>
+            <div class="timeline-date">
+              <time datetime={item.start}>
+                {formatDateRange(item.start, item.end, lang, item.expected)}
+              </time>
+            </div>
+            <div class="timeline-content">
+              <h3>{item.href ? <a href={item.href}>{item.title}</a> : item.title}</h3>
+              {item.role && <p class="timeline-role">{item.role}</p>}
+              <p class="meta">
+                <strong>{item.org}</strong> <span aria-hidden="true">·</span> {item.location}
+              </p>
+              <p>{item.summary}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>

@@ -1,0 +1,24 @@
+---
+import ColophonSection from "../components/ColophonSection.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import type { ShippedLocale } from "../data/site.ts";
+import { t } from "../i18n/utils.ts";
+import { getBio } from "../utils/content.ts";
+
+interface Props {
+  lang: ShippedLocale;
+}
+
+const { lang } = Astro.props;
+const bio = await getBio(lang);
+---
+
+<BaseLayout
+  title={t(lang, "colophon.title")}
+  description={t(lang, "meta.description")}
+  lang={lang}
+  path="/colophon/"
+  lastUpdated={bio.data.lastUpdated}
+>
+  <ColophonSection lang={lang} />
+</BaseLayout>

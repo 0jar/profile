@@ -1,0 +1,11 @@
+[build]
+  command = "pnpm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "26.12.0"
+
+[[redirects]]
+  from = "/vi/*"
+  to = "/vi/404/index.html"
+  status = 404

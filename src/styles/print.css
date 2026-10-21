@@ -1,0 +1,44 @@
+.cv .container { width: min(100% - 2 * var(--space-md), 62rem); }
+.cv-header { padding-block: var(--space-lg) var(--space-md); border-bottom: 1px solid var(--border-subtle); }
+.cv-header h1 { font-size: var(--step-4); }
+.cv-header p { margin-bottom: var(--space-xs); }
+.cv-updated { color: var(--text-muted); font-size: var(--step--1); }
+.cv-layout { display: grid; gap: var(--space-lg); grid-template-columns: minmax(0, 68fr) minmax(0, 32fr); }
+.cv-ats .cv-layout { grid-template-columns: 1fr; }
+@media (max-width: 40rem) { .cv-layout { grid-template-columns: 1fr; } }
+.cv section { padding-block: var(--space-md); }
+.cv h2 { font-size: var(--step-1); }
+.cv h3 { font-size: var(--step-0); }
+.cv-item { margin-bottom: var(--space-md); break-inside: avoid; }
+.cv-list { margin: 0; padding-inline-start: 1.1rem; }
+.cv .meta { color: var(--text-secondary); font-size: var(--step--1); margin-bottom: var(--space-xs); }
+
+@page { size: A4; margin: 14mm 16mm; }
+
+@media print {
+  :root, [data-page-type="cv"] {
+    color-scheme: light;
+  }
+  body { font-size: 9.5pt; line-height: 1.5; background: #fff; color: #000; }
+  .no-print, .skip-link, .site-header, .theme-toggle { display: none; }
+  .cv-layout { gap: 1.25rem; }
+  .cv section { padding-block: 0.45rem; }
+  .cv-header { padding-block: 0 0.55rem; margin-bottom: 0.25rem; }
+  .cv-header h1 { font-size: 18pt; margin-bottom: 0.25rem; }
+  .cv-header p { margin-bottom: 0.2rem; }
+  .cv h2 { font-size: 11.5pt; margin-bottom: 0.4rem; }
+  .cv h3 { font-size: 10pt; margin-bottom: 0.2rem; }
+  .cv .meta { margin-bottom: 0.2rem; }
+  .cv-item { margin-bottom: 0.7rem; }
+  .cv-item p { margin-bottom: 0.2rem; }
+  .cv-item ul { margin: 0.25rem 0 0; padding-inline-start: 1.1rem; }
+  .cv-item li, .cv-list li { margin-bottom: 0.2rem; }
+  .cv-ats { line-height: 1.42; }
+  .cv-ats .cv-layout { gap: 0.5rem; }
+  .cv-ats section { padding-block: 0.25rem; }
+  .cv-ats .cv-header { padding-block: 0 0.35rem; margin-bottom: 0.1rem; }
+  .cv-ats .cv-item { margin-bottom: 0.42rem; }
+  .cv-ats .cv-item li, .cv-ats .cv-list li { margin-bottom: 0.1rem; }
+  .site-footer { display: none; }
+  a { color: inherit; text-decoration: none; }
+}

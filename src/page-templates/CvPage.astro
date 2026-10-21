@@ -1,0 +1,119 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { blogHost, linksHost, site, type ShippedLocale } from "../data/site.ts";
+import { localePath, t } from "../i18n/utils.ts";
+import { formatDateRange } from "../utils/dates.ts";
+import { getBio, getEntries, getLanguages } from "../utils/content.ts";
+
+interface Props {
+  lang: ShippedLocale;
+  ats?: boolean;
+}
+
+const { lang, ats = false } = Astro.props;
+const [bio, timeline, projects, languages] = await Promise.all([
+  getBio(lang),
+  getEntries("timeline", lang),
+  getEntries("projects", lang),
+  getLanguages(lang)
+]);
+const jobs = timeline.filter((e) => e.data.onCv);
+const cvProjects = projects.filter((p) => p.data.onCv);
+const path = ats ? "/cv/ats/" : "/cv/";
+const pdfBase = `/cv/${site.pdfBaseName}-${lang}`;
+---
+
+<BaseLayout
+  title={`CV | ${site.legalName}`}
+  description={t(lang, "meta.description")}
+  lang={lang}
+  path={path}
+  pageType="cv"
+  canonicalPath="/cv/"
+  lastUpdated={bio.data.lastUpdated}
+  showHeader={false}
+>
+  <article class={`cv ${ats ? "cv-ats" : ""}`}>
+    <div class="container">
+      <p class="no-print"><a href={localePath(lang, "/")}>{t(lang, "cv.back")}</a></p>
+      <header class="cv-header">
+        <h1>
+          {lang === "en" ? <span lang="vi">{site.legalName}</span> : site.legalName} ({site.displayName})
+        </h1>
+        <p class="aliases">{bio.data.aliasesLine}</p>
+        <p>
+          <a href={`mailto:${site.email}`}>{site.email}</a> - {bio.data.currentBase}
+        </p>
+        <p class="no-print">
+          <a href={`${pdfBase}.pdf`} download>{t(lang, "cv.download")}</a> ·
+          <a href={`${pdfBase}-ats.pdf`} download>{t(lang, "cv.downloadAts")}</a>
+        </p>
+        <p class="cv-updated">
+          {t(lang, "cv.updated")}: <time datetime={bio.data.lastUpdated}>{bio.data.lastUpdated}</time>
+        </p>
+      </header>
+      <div class="cv-layout">
+        <div class="cv-main">
+          <section aria-labelledby="cv-exp">
+            <h2 id="cv-exp">{t(lang, "cv.experience")}</h2>
+            {
+              jobs.map((e) => (
+                <div class="cv-item">
+                  <h3>{e.data.title}</h3>
+                  <p class="meta">
+                    {e.data.org}, {e.data.location} - {formatDateRange(e.data.start, e.data.end, lang, e.data.isExpectedEnd)}
+                  </p>
+                  <p>{e.data.summary}</p>
+                  {e.data.highlights.length > 0 && (
+                    <ul>{e.data.highlights.map((h) => <li>{h}</li>)}</ul>
+                  )}
+                </div>
+              ))
+            }
+          </section>
+          <section aria-labelledby="cv-proj">
+            <h2 id="cv-proj">{t(lang, "cv.projects")}</h2>
+            {
+              cvProjects.map((p) => (
+                <div class="cv-item">
+                  <h3>{p.data.title}</h3>
+                  <p class="meta">
+                    {p.data.role}, {p.data.org} - {formatDateRange(p.data.start, p.data.end, lang)}
+                  </p>
+                  <p>{p.data.summary}</p>
+                  {p.data.highlights.length > 0 && (
+                    <ul>{p.data.highlights.map((h) => <li>{h}</li>)}</ul>
+                  )}
+                </div>
+              ))
+            }
+          </section>
+        </div>
+        <div class="cv-side">
+          <section aria-labelledby="cv-lang">
+            <h2 id="cv-lang">{t(lang, "cv.languages")}</h2>
+            <ul class="cv-list">
+              {
+                languages.map((l) => (
+                  <li>
+                    {l.name}: {l.levelLabel.replace(/\s*\((self-assessed|tự đánh giá)\)/gi, "")}
+                    {l.certificate?.confirmed && ` (${l.certificate.name}, ${l.certificate.scope})`}
+                    {l.selfAssessedCefr && `, ${l.selfAssessedCefr}`}
+                  </li>
+                ))
+              }
+            </ul>
+          </section>
+          <section aria-labelledby="cv-links">
+            <h2 id="cv-links">{t(lang, "cv.links")}</h2>
+            <ul class="cv-list">
+              <li><a rel="me" href={site.blogUrl}>{blogHost}</a></li>
+              <li><a rel="me" href={site.linksUrl}>{linksHost}</a></li>
+              {site.codeProfiles.map((p) => <li><a rel="me" href={p.url}>{p.label}: {p.handle}</a></li>)}
+            </ul>
+          </section>
+        </div>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

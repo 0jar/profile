@@ -1,0 +1,30 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site, type ShippedLocale } from "../data/site.ts";
+import { localePath, t } from "../i18n/utils.ts";
+import { getBio } from "../utils/content.ts";
+
+interface Props {
+  lang: ShippedLocale;
+}
+
+const { lang } = Astro.props;
+const bio = await getBio(lang);
+---
+
+<BaseLayout
+  title={`${t(lang, "notfound.title")} | ${site.displayName}`}
+  description={t(lang, "notfound.body")}
+  lang={lang}
+  path="/404/"
+  lastUpdated={bio.data.lastUpdated}
+  robotsNoindex
+>
+  <article class="article">
+    <div class="container">
+      <h1>{t(lang, "notfound.title")}</h1>
+      <p>{t(lang, "notfound.body")}</p>
+      <p><a class="btn-primary" href={localePath(lang, "/")}>{t(lang, "notfound.home")}</a></p>
+    </div>
+  </article>
+</BaseLayout>

@@ -1,0 +1,39 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/Hero.astro";
+import AboutSection from "../components/AboutSection.astro";
+import ProjectCards from "../components/ProjectCards.astro";
+import TimelineList from "../components/TimelineList.astro";
+import GeographyCards from "../components/GeographyCards.astro";
+import LanguageMatrix from "../components/LanguageMatrix.astro";
+import ContactSection from "../components/ContactSection.astro";
+import FaqSection from "../components/FaqSection.astro";
+import { site, type ShippedLocale } from "../data/site.ts";
+import { t } from "../i18n/utils.ts";
+import { getBio } from "../utils/content.ts";
+
+interface Props {
+  lang: ShippedLocale;
+}
+
+const { lang } = Astro.props;
+const bio = await getBio(lang);
+---
+
+<BaseLayout
+  title={site.displayName}
+  description={t(lang, "meta.description")}
+  lang={lang}
+  path="/"
+  pageType="home"
+  lastUpdated={bio.data.lastUpdated}
+>
+  <Hero lang={lang} />
+  <AboutSection lang={lang} />
+  <TimelineList lang={lang} />
+  <ProjectCards lang={lang} />
+  <GeographyCards lang={lang} />
+  <LanguageMatrix lang={lang} />
+  <ContactSection lang={lang} />
+  <FaqSection lang={lang} />
+</BaseLayout>

@@ -1,0 +1,71 @@
+---
+import { render } from "astro:content";
+import { parseEntryId, type ShippedLocale } from "../data/site.ts";
+import { calcHaversine, geoNodes } from "../data/geography.ts";
+import { t } from "../i18n/utils.ts";
+import { getEntries } from "../utils/content.ts";
+
+interface Props {
+  lang: ShippedLocale;
+}
+
+const { lang } = Astro.props;
+const entries = await getEntries("geography", lang);
+const num = new Intl.NumberFormat(lang, { maximumFractionDigits: 0 });
+const usd = new Intl.NumberFormat(lang, { maximumFractionDigits: 0 });
+const formatCoordinate = (value: number, positive: string, negative: string) =>
+  `${Math.abs(value).toFixed(2)}° ${value >= 0 ? positive : negative}`;
+
+const cards = await Promise.all(
+  entries.map(async (entry) => {
+    const slug = parseEntryId(entry.id).slug;
+    const node = geoNodes.find((n) => n.nodeId === slug);
+    if (!node) throw new Error(`No geography node for ${entry.id}`);
+    const { Content } = await render(entry);
+    const distances = entries
+      .filter((o) => o.id !== entry.id)
+      .map((o) => {
+        const other = geoNodes.find((n) => n.nodeId === parseEntryId(o.id).slug);
+        if (!other) throw new Error(`No geography node for ${o.id}`);
+        const km = Math.round(calcHaversine(node.coordinates, other.coordinates) / 10) * 10;
+        return { city: o.data.city, km };
+      });
+    return { entry, node, Content, distances };
+  })
+);
+---
+
+<section id="places" aria-labelledby="places-title">
+  <div class="container">
+    <h2 id="places-title">{t(lang, "geography.title")}</h2>
+    <div class="grid">
+      {
+        cards.map(({ entry, node, Content, distances }) => (
+          <article class="card" id={`place-${parseEntryId(entry.id).slug}`}>
+            <p class="meta">{entry.data.roleLabel}</p>
+            <h3>
+              {entry.data.city}, {entry.data.country}
+            </h3>
+            <Content />
+            <dl class="place-stats">
+              <dt>{t(lang, "geography.coords")}</dt>
+              <dd>{formatCoordinate(node.coordinates[1], "N", "S")}, {formatCoordinate(node.coordinates[0], "E", "W")}</dd>
+              <dt>{t(lang, "geography.tz")}</dt>
+              <dd>{node.utcOffsetLabel}</dd>
+              <dt>{t(lang, "geography.distance")}</dt>
+              {distances.map((d) => (
+                <dd>
+                  {d.city}: {num.format(d.km)} km
+                </dd>
+              ))}
+              <dt>{`${t(lang, "geography.gdp")} (${node.gdpYear})`}</dt>
+              <dd>
+                <a href={node.gdpSourceUrl}>{`${usd.format(node.gdpNominalUsdBillions)} bn USD`}</a>
+              </dd>
+            </dl>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

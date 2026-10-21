@@ -1,0 +1,37 @@
+---
+import { site, type ShippedLocale } from "../data/site.ts";
+import { t } from "../i18n/utils.ts";
+
+interface Props {
+  lang: ShippedLocale;
+}
+
+const { lang } = Astro.props;
+const name = site.displayName;
+---
+
+<section id="colophon" aria-labelledby="colophon-title">
+  <div class="container">
+    <h1 id="colophon-title">{t(lang, "colophon.title")}</h1>
+    <dl class="colophon">
+      <dt>{t(lang, "colophon.licence")}</dt>
+      <dd>
+        {t(lang, "colophon.code")}:
+        <a href="https://www.gnu.org/licenses/agpl-3.0.html" rel="license">GNU AGPL v3</a>.
+        {t(lang, "colophon.content")}:
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="license">CC BY-SA 4.0</a>.
+      </dd>
+      <dt>{t(lang, "colophon.ethics")}</dt>
+      <dd>
+        {t(lang, "colophon.ethicsBody")}
+        <a href="https://www.ccc.de/en/hackerethics">{t(lang, "colophon.ethicsLink")}</a>.
+      </dd>
+      <dt>{t(lang, "colophon.impressum")}</dt>
+      <dd>
+        {t(lang, "colophon.impressumBody")}: {name},
+        <a href={`mailto:${site.email}`}>{site.email}</a>. {t(lang, "colophon.noAddress")}
+        <p class="impressum-note" lang="de">Amtliche Stellen können per E-Mail anfragen, um die benötigten Daten zu erhalten, sofern ihre Anfrage berechtigt ist. Diese private Website wird nicht kommerziell betrieben; sämtliche Inhalte dienen nicht kommerziellen Zwecken.</p>
+      </dd>
+    </dl>
+  </div>
+</section>

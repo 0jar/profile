@@ -1,0 +1,26 @@
+---
+import { localeAutonyms, shippedLocales, type ShippedLocale } from "../data/site.ts";
+import { t } from "../i18n/utils.ts";
+
+interface Props {
+  lang: ShippedLocale;
+  alternates: Record<ShippedLocale, string>;
+}
+
+const { lang, alternates } = Astro.props;
+---
+
+<nav class="lang-switcher" aria-label={t(lang, "nav.langSwitcher")}>
+  {
+    shippedLocales.map((l) => (
+      <a
+        href={alternates[l]}
+        hreflang={l}
+        lang={l}
+        aria-current={l === lang ? "page" : undefined}
+      >
+        {localeAutonyms[l]}
+      </a>
+    ))
+  }
+</nav>

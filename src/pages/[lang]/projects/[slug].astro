@@ -1,0 +1,23 @@
+---
+import ProjectPage from "../../../page-templates/ProjectPage.astro";
+import { defaultLocale, parseEntryId, shippedLocales } from "../../../data/site.ts";
+import { getEntries } from "../../../utils/content.ts";
+
+export async function getStaticPaths() {
+  const locales = shippedLocales.filter((l) => l !== defaultLocale);
+  const perLocale = await Promise.all(
+    locales.map(async (lang) => {
+      const projects = await getEntries("projects", lang);
+      return projects.map((project) => {
+        const slug = parseEntryId(project.id).slug;
+        return { params: { lang, slug }, props: { lang, slug } };
+      });
+    })
+  );
+  return perLocale.flat();
+}
+
+const { lang, slug } = Astro.props;
+---
+
+<ProjectPage lang={lang} slug={slug} />

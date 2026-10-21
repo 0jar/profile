@@ -1,0 +1,31 @@
+---
+import type { ShippedLocale } from "../data/site.ts";
+import { localePath, t } from "../i18n/utils.ts";
+
+interface Props {
+  lang: ShippedLocale;
+  lastUpdated: string;
+}
+
+const { lang, lastUpdated } = Astro.props;
+const label = new Intl.DateTimeFormat(lang, { dateStyle: "long", timeZone: "UTC" }).format(
+  new Date(`${lastUpdated}T00:00:00Z`)
+);
+---
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <p>
+      {t(lang, "footer.updated")}: <time datetime={lastUpdated}>{label}</time>
+    </p>
+    <p>
+      <a href={localePath(lang, "/colophon/")}>{t(lang, "footer.colophon")}</a>
+    </p>
+  </div>
+  <svg height="15" width="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="footer-stripe" preserveAspectRatio="none">
+    <rect fill="#D60270" height="5" width="100%" x="0" y="0"></rect>
+    <rect fill="#9B4F96" height="5" width="100%" x="0" y="5"></rect>
+    <rect fill="#0038A8" height="5" width="100%" x="0" y="10"></rect>
+  </svg>
+  <div aria-hidden="true" class="footer-spacer"></div>
+</footer>

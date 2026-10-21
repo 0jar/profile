@@ -1,0 +1,34 @@
+---
+import { blogHost, linksHost, site, type ShippedLocale } from "../data/site.ts";
+import { t } from "../i18n/utils.ts";
+
+interface Props {
+  lang: ShippedLocale;
+}
+
+const { lang } = Astro.props;
+---
+
+<section id="contact" aria-labelledby="contact-title">
+  <div class="container">
+    <h2 id="contact-title">{t(lang, "contact.title")}</h2>
+    <p>{t(lang, "contact.intro")}</p>
+    <div class="contact-pills">
+      <a class="btn-primary" rel="me" href={site.signalUrl}>{t(lang, "contact.signal")} @{site.signalHandle}</a>
+      <a class="btn-primary" rel="me" href={`mailto:${site.email}`}>{site.email}</a>
+      <button class="btn-copy" type="button" data-copy-email={site.email} data-copied-label={t(lang, "contact.copied")}>
+        {t(lang, "contact.copyEmail")}
+      </button>
+    </div>
+    <p>{t(lang, "contact.phoneNote")}</p>
+    <div class="contact-pills">
+      <a class="pill" rel="me" href={`tel:${site.phone}`}>{site.phone}</a>
+    </div>
+    <h3>{t(lang, "contact.elsewhere")}</h3>
+    <div class="contact-pills">
+      <a class="pill" rel="me" href={site.blogUrl}>{blogHost}</a>
+      <a class="pill" rel="me" href={site.linksUrl}>{linksHost}</a>
+      {site.codeProfiles.map((p) => <a class="pill" rel="me" href={p.url}>{p.label}</a>)}
+    </div>
+  </div>
+</section>

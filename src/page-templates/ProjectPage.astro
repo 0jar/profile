@@ -1,0 +1,46 @@
+---
+import { render } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { parseEntryId, site, type ShippedLocale } from "../data/site.ts";
+import { localePath, t } from "../i18n/utils.ts";
+import { formatDateRange } from "../utils/dates.ts";
+import { getBio, getEntries } from "../utils/content.ts";
+
+interface Props {
+  lang: ShippedLocale;
+  slug: string;
+}
+
+const { lang, slug } = Astro.props;
+const bio = await getBio(lang);
+const projects = await getEntries("projects", lang);
+const project = projects.find((p) => parseEntryId(p.id).slug === slug);
+if (!project) throw new Error(`Missing project "${slug}" for locale "${lang}"`);
+const { Content } = await render(project);
+const d = project.data;
+---
+
+<BaseLayout
+  title={`${d.title} | ${site.displayName}`}
+  description={d.summary}
+  lang={lang}
+  path={`/projects/${slug}/`}
+  lastUpdated={bio.data.lastUpdated}
+>
+  <article class="article">
+    <div class="container">
+      <p><a href={`${localePath(lang, "/")}#projects`}>{t(lang, "cv.back")}</a></p>
+      <h1>{d.title}</h1>
+      <p class="meta">
+        {d.role}, {d.org} - {formatDateRange(d.start, d.end, lang)}
+      </p>
+      <p>{d.summary}</p>
+      <Content />
+      <p>{d.stack.map((s) => <span class="tag">{s}</span>)}</p>
+      <p>
+        {d.repoUrl && <a class="pill" href={d.repoUrl}>Source</a>}
+        {d.liveUrl && <a class="pill" href={d.liveUrl}>Live</a>}
+      </p>
+    </div>
+  </article>
+</BaseLayout>

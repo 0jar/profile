@@ -1,0 +1,33 @@
+---
+import { render } from "astro:content";
+import type { ShippedLocale } from "../data/site.ts";
+import { t } from "../i18n/utils.ts";
+import { getBio } from "../utils/content.ts";
+
+interface Props {
+  lang: ShippedLocale;
+}
+
+const { lang } = Astro.props;
+const bio = await getBio(lang);
+const { Content } = await render(bio);
+---
+
+<section id="about" aria-labelledby="about-title">
+  <div class="container about-layout">
+    <div>
+      <h2 id="about-title">{t(lang, "about.title")}</h2>
+      <Content />
+      <h3>{bio.data.interestsTitle}</h3>
+      <ul class="interests">
+        {
+          bio.data.interests.map((item, index) => (
+            <li id={`interest-${index + 1}`}>
+              <strong>{item.label}.</strong> {item.detail}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>

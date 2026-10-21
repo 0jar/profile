@@ -1,0 +1,12 @@
+---
+import { getPaths } from "../../data/site.ts";
+import HomePage from "../../page-templates/HomePage.astro";
+
+export function getStaticPaths() {
+  return getPaths();
+}
+
+const { lang } = Astro.props;
+---
+
+<HomePage lang={lang} />

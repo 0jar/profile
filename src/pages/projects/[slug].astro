@@ -1,0 +1,14 @@
+---
+import ProjectPage from "../../page-templates/ProjectPage.astro";
+import { parseEntryId } from "../../data/site.ts";
+import { getEntries } from "../../utils/content.ts";
+
+export async function getStaticPaths() {
+  const projects = await getEntries("projects", "en");
+  return projects.map((project) => ({ params: { slug: parseEntryId(project.id).slug } }));
+}
+
+const { slug } = Astro.params;
+---
+
+<ProjectPage lang="en" slug={slug} />

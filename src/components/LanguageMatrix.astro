@@ -1,0 +1,42 @@
+---
+import type { ShippedLocale } from "../data/site.ts";
+import { t } from "../i18n/utils.ts";
+import { getLanguages } from "../utils/content.ts";
+
+interface Props {
+  lang: ShippedLocale;
+}
+
+const { lang } = Astro.props;
+const items = await getLanguages(lang);
+---
+
+<section id="languages" aria-labelledby="languages-title">
+  <div class="container">
+    <h2 id="languages-title">{t(lang, "languages.title")}</h2>
+    <dl class="lang-matrix">
+      {
+        items.map((item) => (
+          <div class="lang-row" id={`language-${item.code}`}>
+            <dt>
+              {item.name} (<span lang={item.code}>{item.autonym}</span>)
+            </dt>
+            <dd>
+              <span>{item.levelLabel}</span>
+              {item.certificate?.confirmed && (
+                <span class="badge-certified">
+                  {t(lang, "languages.certified")}: {item.certificate.name}, {item.certificate.scope}
+                </span>
+              )}
+              {item.selfAssessedCefr && (
+                <span class="badge-self-assessed">
+                  {t(lang, "languages.cefr")}: {item.selfAssessedCefr}
+                </span>
+              )}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>

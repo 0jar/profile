@@ -1,0 +1,12 @@
+---
+import { getPaths } from "../../data/site.ts";
+import NotFoundPage from "../../page-templates/NotFoundPage.astro";
+
+export function getStaticPaths() {
+  return getPaths();
+}
+
+const { lang } = Astro.props;
+---
+
+<NotFoundPage lang={lang} />

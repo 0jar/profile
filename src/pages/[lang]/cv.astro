@@ -1,0 +1,12 @@
+---
+import { getPaths } from "../../data/site.ts";
+import CvPage from "../../page-templates/CvPage.astro";
+
+export function getStaticPaths() {
+  return getPaths();
+}
+
+const { lang } = Astro.props;
+---
+
+<CvPage lang={lang} />

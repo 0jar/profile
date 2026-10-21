@@ -1,0 +1,120 @@
+---
+import "../styles/_fonts.css";
+import "../styles/_tokens.css";
+import "../styles/global.css";
+import "../styles/print.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import Galaxy from "../components/Galaxy.astro";
+import { themeScript } from "../data/security.ts";
+import { ogLocales, shippedLocales, site, siteHost, type ShippedLocale } from "../data/site.ts";
+import { localePath, t } from "../i18n/utils.ts";
+import { getEntries } from "../utils/content.ts";
+
+interface Props {
+  title: string;
+  description: string;
+  lang: ShippedLocale;
+  path: string;
+  pageType?: "home" | "cv" | "article";
+  lastUpdated: string;
+  canonicalPath?: string;
+  showHeader?: boolean;
+  robotsNoindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  lang,
+  path,
+  pageType = "article",
+  lastUpdated,
+  canonicalPath,
+  showHeader = true,
+  robotsNoindex = false
+} = Astro.props;
+
+const abs = (p: string) => new URL(p, site.url).href;
+const canonical = abs(localePath(lang, canonicalPath ?? path));
+const alternates = Object.fromEntries(shippedLocales.map((l) => [l, localePath(l, path)])) as Record<
+  ShippedLocale,
+  string
+>;
+const timeline = await getEntries("timeline", lang);
+const personName = site.displayName;
+const currentRole = timeline.find((entry) => entry.data.order === 1);
+if (!currentRole) throw new Error(`Missing current role for locale "${lang}"`);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: personName,
+  email: `mailto:${site.email}`,
+  url: abs(localePath(lang, "/")),
+  jobTitle: currentRole.data.title,
+  sameAs: [site.blogUrl, site.linksUrl, ...site.codeProfiles.map((profile) => profile.url)]
+};
+const jsonldHtml = JSON.stringify(jsonLd)
+  .replaceAll("&", "\\u0026")
+  .replaceAll("<", "\\u003c")
+  .replaceAll(">", "\\u003e");
+const ogImage = abs(`/og-${lang}.png`);
+const ogLocale = ogLocales[lang];
+---
+
+<!doctype html>
+<html lang={lang} data-page-type={pageType === "cv" ? "cv" : undefined}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {robotsNoindex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={canonical} />
+    {
+      shippedLocales.map((l) => (
+        <link rel="alternate" hreflang={l} href={abs(alternates[l])} />
+      ))
+    }
+    <link rel="alternate" hreflang="x-default" href={abs(alternates.en)} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={t(lang, "meta.rssTitle")}
+      href={`${site.blogUrl}/rss.xml`}
+    />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#1A0F2E" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteHost} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script is:inline set:html={themeScript} />
+    <script type="application/ld+json" set:html={jsonldHtml} />
+  </head>
+  <body>
+    {pageType !== "cv" && <Galaxy />}
+    <a class="skip-link" href="#main">{t(lang, "skip.main")}</a>
+    {showHeader && <Header lang={lang} alternates={alternates} />}
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} lastUpdated={lastUpdated} />
+    {pageType !== "cv" && (
+      <script>
+        import "../scripts/theme.ts";
+      </script>
+    )}
+  </body>
+</html>
